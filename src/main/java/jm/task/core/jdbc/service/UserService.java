@@ -11,6 +11,8 @@ public interface UserService {
 
     void saveUser(String name, String lastName, byte age);
 
+    void saveUser(User user);
+
     void removeUserById(long id);
 
     List<User> getAllUsers();
