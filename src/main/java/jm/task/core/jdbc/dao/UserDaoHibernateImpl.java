@@ -2,37 +2,34 @@ package jm.task.core.jdbc.dao;
 
 import jm.task.core.jdbc.model.User;
 import jm.task.core.jdbc.util.Util;
-import org.hibernate.SQLQuery;
+
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
-import org.hibernate.query.Query;
 
-import java.util.ArrayList;
+
 import java.util.List;
 
 public class UserDaoHibernateImpl implements UserDao {
 
-    private SessionFactory sessionFactory = Util.getDBSession();
+    private final SessionFactory sessionFactory;
 
     public UserDaoHibernateImpl() {
-
+        sessionFactory = Util.getDBSession();
     }
 
     @Override
     public void createUsersTable() {
-        String sqlQuery = "CREATE TABLE IF NOT EXISTS users_table (" +
+        executeSQLQuery("CREATE TABLE IF NOT EXISTS User (" +
                 "id BIGINT NOT NULL AUTO_INCREMENT," +
                 "username VARCHAR(255) NOT NULL," +
                 "last_name VARCHAR(255) NOT NULL," +
                 "age TINYINT NOT NULL," +
-                "PRIMARY KEY (id))";
-        executeSQLQuery(sqlQuery);
+                "PRIMARY KEY (id))");
     }
 
     @Override
     public void dropUsersTable() {
-        String sqlQuery = "DROP TABLE IF EXISTS User";
-        executeSQLQuery(sqlQuery);
+        executeSQLQuery("DROP TABLE IF EXISTS User");
     }
 
     @Override
@@ -85,16 +82,14 @@ public class UserDaoHibernateImpl implements UserDao {
 
     @Override
     public void cleanUsersTable() {
-        String sqlQuery = "TRUNCATE TABLE User";
-        executeSQLQuery(sqlQuery);
+        executeSQLQuery("TRUNCATE TABLE User");
     }
 
     private void executeSQLQuery(String query) {
         Session session = sessionFactory.openSession();
-        session.beginTransaction();
         try {
-            SQLQuery sqlQuerry = session.createSQLQuery(query);
-            sqlQuerry.executeUpdate();
+            session.beginTransaction();
+            session.createSQLQuery(query).executeUpdate();
             session.getTransaction().commit();
         } catch (Exception e) {
             session.getTransaction().rollback();
