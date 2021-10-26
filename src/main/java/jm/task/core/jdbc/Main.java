@@ -10,6 +10,11 @@ import java.util.List;
 
 public class Main {
     public static void main(String[] args) {
+        UserService userService = new UserServiceImpl();
+
+        userService.dropUsersTable();
+        userService.createUsersTable();
+
         List<User> users = new ArrayList<>(
                 Arrays.asList(
                     new User("first_name", "first_lastName", (byte) 10),
@@ -17,22 +22,15 @@ public class Main {
                     new User("third_name", "third_lastName", (byte) 30),
                     new User("fourth_name", "fourth_lastName", (byte) 40)));
 
-        UserService userService = new UserServiceImpl();
-
-        userService.createUsersTable();
-
         for (User user : users) {
             userService.saveUser(user);
             System.out.println("User с именем - " + user.getName() + " добавлен в базу данных");
         }
 
         List<User> allUsers = userService.getAllUsers();
-        for (User user : allUsers) {
-            System.out.println(user);
-        }
+        allUsers.forEach(System.out::println);
 
         userService.cleanUsersTable();
-
         userService.dropUsersTable();
     }
 }
