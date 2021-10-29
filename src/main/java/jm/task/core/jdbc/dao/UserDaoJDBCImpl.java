@@ -4,6 +4,7 @@ import jm.task.core.jdbc.model.User;
 import jm.task.core.jdbc.util.Util;
 
 import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -36,13 +37,76 @@ public class UserDaoJDBCImpl implements UserDao {
 
     @Override
     public void saveUser(String name, String lastName, byte age) {
-        executeSQLUpdate("INSERT INTO users_table (username, last_name, age) " +
-                "VALUES (\"" + name + "\",\"" + lastName + "\"," + age + ")");
+        PreparedStatement statement = null;
+        try {
+            statement = connection.prepareStatement("INSERT INTO users_table (username, last_name, age) VALUE (?, ?, ?)");
+            statement.setString(1, name);
+            statement.setString(2, lastName);
+            statement.setByte(3, age);
+        } catch (SQLException throwables) {
+            System.out.println("Failure while preparing a statement");
+            throwables.printStackTrace();
+        }
+        if (statement != null) {
+            try {
+                statement.executeUpdate();
+                connection.commit();
+            } catch (SQLException e) {
+                System.out.println("Failure while executing query");
+                e.printStackTrace();
+                try {
+                    connection.rollback();
+                } catch (SQLException e1) {
+                    e1.printStackTrace();
+                }
+            } finally {
+                try {
+                    statement.close();
+                } catch (SQLException e) {
+                    System.out.println("Failure while closing statement");
+                    e.printStackTrace();
+                }
+            }
+        }
+
+
+//        executeSQLUpdate("INSERT INTO users_table (username, last_name, age) " +
+//                "VALUES (\"" + name + "\",\"" + lastName + "\"," + age + ")");
     }
 
     @Override
     public void removeUserById(long id) {
-        executeSQLUpdate("DELETE FROM users_table WHERE id = " + id);
+        PreparedStatement statement = null;
+        try {
+            statement = connection.prepareStatement("DELETE FROM users_table WHERE id = ?");
+            statement.setLong(1, id);
+        } catch (SQLException throwables) {
+            System.out.println("Failure while preparing a statement");
+            throwables.printStackTrace();
+        }
+        if (statement != null) {
+            try {
+                statement.executeUpdate();
+                connection.commit();
+            } catch (SQLException e) {
+                System.out.println("Failure while executing query");
+                e.printStackTrace();
+                try {
+                    connection.rollback();
+                } catch (SQLException e1) {
+                    e1.printStackTrace();
+                }
+            } finally {
+                try {
+                    statement.close();
+                } catch (SQLException e) {
+                    System.out.println("Failure while closing statement");
+                    e.printStackTrace();
+                }
+            }
+        }
+
+//        executeSQLUpdate("DELETE FROM users_table WHERE id = " + id);
     }
 
     @Override

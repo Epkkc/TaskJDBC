@@ -5,6 +5,7 @@ import jm.task.core.jdbc.util.Util;
 
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
+import org.hibernate.query.Query;
 
 
 import java.util.List;
@@ -37,13 +38,23 @@ public class UserDaoHibernateImpl implements UserDao {
         Session session = sessionFactory.openSession();
         try {
             session.beginTransaction();
-            session.persist(new User(name, lastName, age));
+            session.save(new User(name, lastName, age));
             session.getTransaction().commit();
         } catch (Exception e) {
-            session.getTransaction().rollback();
+            try {
+                session.getTransaction().rollback();
+            } catch (Exception e1) {
+                e.addSuppressed(e1);
+                e1.printStackTrace();
+            }
             e.printStackTrace();
         } finally {
-            session.close();
+            try {
+                session.close();
+            } catch (Exception e){
+                System.out.println("Failure while closing resource");
+                e.printStackTrace();
+            }
         }
     }
 
@@ -52,14 +63,24 @@ public class UserDaoHibernateImpl implements UserDao {
         Session session = sessionFactory.openSession();
         try {
             session.beginTransaction();
-            User user = session.load(User.class, id);
-            session.delete(user);
+            Query query = session.createQuery("DELETE User WHERE id = :id");
+            query.setParameter("id", id);
             session.getTransaction().commit();
         } catch (Exception e) {
-            session.getTransaction().rollback();
+            try {
+                session.getTransaction().rollback();
+            } catch (Exception e1) {
+                e.addSuppressed(e1);
+                e1.printStackTrace();
+            }
             e.printStackTrace();
         } finally {
-            session.close();
+            try {
+                session.close();
+            } catch (Exception e){
+                System.out.println("Failure while closing resource");
+                e.printStackTrace();
+            }
         }
     }
 
@@ -72,10 +93,20 @@ public class UserDaoHibernateImpl implements UserDao {
             users = session.createQuery("FROM User").list();
             session.getTransaction().commit();
         } catch (Exception e) {
-            session.getTransaction().rollback();
+            try {
+                session.getTransaction().rollback();
+            } catch (Exception e1) {
+                e.addSuppressed(e1);
+                e1.printStackTrace();
+            }
             e.printStackTrace();
         } finally {
-            session.close();
+            try {
+                session.close();
+            } catch (Exception e){
+                System.out.println("Failure while closing resource");
+                e.printStackTrace();
+            }
         }
         return users;
     }
@@ -92,10 +123,20 @@ public class UserDaoHibernateImpl implements UserDao {
             session.createSQLQuery(query).executeUpdate();
             session.getTransaction().commit();
         } catch (Exception e) {
-            session.getTransaction().rollback();
+            try {
+                session.getTransaction().rollback();
+            } catch (Exception e1) {
+                e.addSuppressed(e1);
+                e1.printStackTrace();
+            }
             e.printStackTrace();
         } finally {
-            session.close();
+            try {
+                session.close();
+            } catch (Exception e){
+                System.out.println("Failure while closing resource");
+                e.printStackTrace();
+            }
         }
     }
 }
